@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survey Data</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Survey Data</h1>
+        <table class="table table-bordered mt-4">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Date of Survey</th>
+                    <th>Liked Most</th>
+                    <th>Interest Source</th>
+                    <th>Recommendation</th>
+                </tr>
+            </thead>
+            <tbody id="survey-table-body">
+                <!-- Survey rows will be populated here -->
+            </tbody>
+        </table>
+        <a href="index.html" class="btn btn-primary">Go Back</a>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const surveys = JSON.parse(localStorage.getItem("surveys"));
+            const tableBody = document.getElementById("survey-table-body");
+
+            if (surveys && surveys.length > 0) {
+                surveys.forEach(survey => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${survey.id}</td>
+                        <td>${survey.firstName}</td>
+                        <td>${survey.lastName}</td>
+                        <td>${survey.email}</td>
+                        <td>${survey.telephoneNumber}</td>
+                        <td>${survey.streetAddress}, ${survey.city}, ${survey.state}, ${survey.zip}</td>
+                        <td>${survey.dateOfSurvey}</td>
+                        <td>${survey.likedMost}</td>
+                        <td>${survey.howInterested}</td>
+                        <td>${survey.recommendationLikelihood}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="10" class="text-center">No survey data available.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+</html>
