@@ -1,5 +1,5 @@
-# Use an official Java runtime as the base image
-FROM openjdk:17-jdk-slim
+# Use a lightweight base image
+FROM openjdk:17-alpine
 
 # Set the working directory in the container
 WORKDIR /app
@@ -12,4 +12,5 @@ EXPOSE 8080
 
 # Command to run the JAR file
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
    
