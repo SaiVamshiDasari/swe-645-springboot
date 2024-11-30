@@ -17,18 +17,18 @@ pipeline {
             }
         }
 
-        stage('Build and Test Spring Boot Application') {
-            steps {
-                sh '''
-                # Ensure Maven is installed and available
-                mvn clean package
-
-                # Optional: Run the Spring Boot app to verify it starts correctly
-                java -jar target/*.jar &
-                sleep 10
-                '''
-            }
+    stage('Build and Test Spring Boot Application') {
+        steps {
+            sh '''
+            pkill -f 'target/demo-0.0.1-SNAPSHOT.jar' || true
+            mvn clean package
+            java -jar target/demo-0.0.1-SNAPSHOT.jar --server.port=8081 &
+            sleep 10
+            pkill -f 'target/demo-0.0.1-SNAPSHOT.jar' || true
+            '''
         }
+}
+
 
         stage('Build Docker Image') {
             steps {
