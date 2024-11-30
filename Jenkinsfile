@@ -52,7 +52,8 @@ pipeline {
         script {
             sh '''
             kubectl --kubeconfig=/var/lib/jenkins/.kube/config config set-context --current --namespace=default
-            kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f deployment.yaml
+            sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
+                kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f deployment.yaml
             kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f service.yaml
             timeout 5m kubectl --kubeconfig=/var/lib/jenkins/.kube/config rollout status deployment/springboot-deployment
             '''
