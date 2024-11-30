@@ -6,9 +6,30 @@ pipeline {
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
         KUBE_NAMESPACE = "default"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
+        GIT_REPO = "https://github.com/SaiVamshiDasari/swe-645-springboot.git" // Replace with your GitHub repository URL
+        GIT_BRANCH = "main" // Branch to fetch
     }
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: "${GIT_BRANCH}", url: "${GIT_REPO}"
+            }
+        }
+
+        stage('Build and Test Spring Boot Application') {
+            steps {
+                sh '''
+                # Ensure Maven is installed and available
+                mvn clean package
+
+                # Optional: Run the Spring Boot app to verify it starts correctly
+                java -jar target/*.jar &
+                sleep 10
+                '''
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 script {
