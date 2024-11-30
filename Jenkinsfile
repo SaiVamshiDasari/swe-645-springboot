@@ -18,16 +18,19 @@ pipeline {
         }
 
         stage('Build and Test Spring Boot Application') {
-            steps {
-                sh '''
-                pkill -f target/demo-0.0.1-SNAPSHOT.jar || true
+    steps {
+        script {
+            sh '''
+                # Gracefully stop any running application
+                pgrep -f target/demo-0.0.1-SNAPSHOT.jar && pkill -f target/demo-0.0.1-SNAPSHOT.jar || true
+                
+                # Build the Spring Boot application
                 mvn clean package
-                java -jar target/demo-0.0.1-SNAPSHOT.jar --server.port=8081 &
-                sleep 10
-                pkill -f target/demo-0.0.1-SNAPSHOT.jar
-                '''
-            }
+            '''
         }
+    }
+}
+
 
         stage('Build Docker Image') {
             steps {
