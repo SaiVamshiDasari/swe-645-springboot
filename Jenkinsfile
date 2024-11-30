@@ -48,18 +48,18 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Apply the deployment and service YAML files from the repository
-                    sh '''
-                    kubectl --kubeconfig=${KUBECONFIG} config set-context --current --namespace=${KUBE_NAMESPACE}
-                    kubectl --kubeconfig=${KUBECONFIG} apply -f deployment.yaml
-                    kubectl --kubeconfig=${KUBECONFIG} apply -f service.yaml
-                    kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/springboot-deployment
-                    '''
-                }
-            }
+    steps {
+        script {
+            sh '''
+            kubectl --kubeconfig=/var/lib/jenkins/.kube/config config set-context --current --namespace=default
+            kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f deployment.yaml
+            kubectl --kubeconfig=/var/lib/jenkins/.kube/config apply -f service.yaml
+            timeout 5m kubectl --kubeconfig=/var/lib/jenkins/.kube/config rollout status deployment/springboot-deployment
+            '''
         }
+    }
+}
+
     }
 
     post {
