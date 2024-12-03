@@ -23,8 +23,6 @@ pipeline {
             sh '''
                 # Gracefully stop any running application
                 pgrep -f target/demo-0.0.1-SNAPSHOT.jar && pkill -f target/demo-0.0.1-SNAPSHOT.jar || true
-                
-                # Build the Spring Boot application
                 mvn clean package
             '''
         }
