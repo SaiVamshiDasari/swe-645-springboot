@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Define your backend base URL
+    const BASE_URL = "http://a9dccd07d48464593bdfe736f1642b28-1996565537.us-east-1.elb.amazonaws.com"; // Change this to your deployed backend URL if needed
+
     // Handle form submission
     const surveyForm = document.querySelector("form");
     surveyForm.addEventListener("submit", async (event) => {
@@ -6,25 +9,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Collect form data
         const formData = {
-            firstName: document.getElementById("firstName").value,
-            lastName: document.getElementById("lastName").value,
-            email: document.getElementById("email").value,
-            telephoneNumber: document.getElementById("phone").value,
-            streetAddress: document.getElementById("street").value,
-            city: document.getElementById("city").value,
-            state: document.getElementById("state").value,
-            zip: document.getElementById("zip").value,
+            firstName: document.getElementById("firstName").value.trim(),
+            lastName: document.getElementById("lastName").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            telephoneNumber: document.getElementById("phone").value.trim(),
+            streetAddress: document.getElementById("street").value.trim(),
+            city: document.getElementById("city").value.trim(),
+            state: document.getElementById("state").value.trim(),
+            zip: document.getElementById("zip").value.trim(),
             dateOfSurvey: document.getElementById("date").value,
             likedMost: Array.from(document.querySelectorAll('input[name="likedMost"]:checked'))
                 .map(input => input.value)
                 .join(","),
-            howInterested: document.querySelector('input[name="interest"]:checked').value,
-            recommendationLikelihood: document.getElementById("recommend").value,
+            howInterested: document.querySelector('input[name="interest"]:checked')?.value || "",
+            recommendationLikelihood: document.getElementById("recommend").value.trim(),
         };
+
+        console.log("Submitting survey data:", formData); // Log the data being submitted
 
         // POST data to backend
         try {
-            const response = await fetch("http://localhost:8080/api/surveys", {
+            const response = await fetch(`${BASE_URL}/api/survey`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -36,7 +41,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Survey submitted successfully!");
                 surveyForm.reset();
             } else {
-                alert("Failed to submit survey. Please try again.");
+                const errorData = await response.json();
+                console.error("Error response from backend:", errorData);
+                alert(`Failed to submit survey: ${errorData.message || "Unknown error"}`);
             }
         } catch (error) {
             console.error("Error submitting survey:", error);
@@ -51,13 +58,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Fetch all surveys
         try {
-            const response = await fetch("http://localhost:8080/api/surveys/all");
+            const response = await fetch(`${BASE_URL}/api/survey/all`);
             if (response.ok) {
                 const surveys = await response.json();
+                console.log("Fetched surveys:", surveys); // Log fetched surveys for debugging
                 localStorage.setItem("surveys", JSON.stringify(surveys));
                 window.location.href = "survey.html"; // Redirect to survey.html
             } else {
-                alert("Failed to fetch survey data. Please try again.");
+                const errorData = await response.json();
+                console.error("Error fetching surveys:", errorData);
+                alert(`Failed to fetch survey data: ${errorData.message || "Unknown error"}`);
             }
         } catch (error) {
             console.error("Error fetching surveys:", error);

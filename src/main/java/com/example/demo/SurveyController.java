@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/survey")
 public class SurveyController {
 
@@ -20,8 +21,8 @@ public class SurveyController {
         return ResponseEntity.ok(savedSurvey);
     }
 
-    // Get all surveys (GET)
-    @GetMapping
+    // GET endpoint to retrieve all surveys
+    @GetMapping("/all")
     public ResponseEntity<List<Survey>> getAllSurveys() {
         List<Survey> surveys = surveyRepository.findAll();
         return ResponseEntity.ok(surveys);
