@@ -50,11 +50,11 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        kubectl --kubeconfig=${KUBECONFIG} config set-context --current --namespace=${KUBE_NAMESPACE}
+                        sudo kubectl --kubeconfig=${KUBECONFIG} config set-context --current --namespace=${KUBE_NAMESPACE}
                         sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
-                        kubectl --kubeconfig=${KUBECONFIG} apply -f deployment.yaml
-                        kubectl --kubeconfig=${KUBECONFIG} apply -f service.yaml
-                        timeout 5m kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/springboot-deployment
+                        sudo kubectl --kubeconfig=${KUBECONFIG} apply -f deployment.yaml
+                        sudo kubectl --kubeconfig=${KUBECONFIG} apply -f service.yaml
+                        sudo timeout 5m kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/springboot-deployment
                     '''
                 }
             }
