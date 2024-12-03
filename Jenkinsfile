@@ -5,8 +5,7 @@ pipeline {
         DOCKER_TAG = "${DOCKER_IMAGE}:${BUILD_NUMBER}"
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
         KUBE_NAMESPACE = "default"
-        KUBECONFIG = "/home/jenkins/kube/config
-"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
