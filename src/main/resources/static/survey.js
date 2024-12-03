@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // POST data to backend
         try {
-            const response = await fetch("http://localhost:8080/api/surveys", {
+            const response = await fetch("http://localhost:8081/api/surveys", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Fetch all surveys
         try {
-            const response = await fetch("http://localhost:8080/api/surveys/all");
+            const response = await fetch("http://localhost:8081/api/surveys/all");
             if (response.ok) {
                 const surveys = await response.json();
                 localStorage.setItem("surveys", JSON.stringify(surveys));
