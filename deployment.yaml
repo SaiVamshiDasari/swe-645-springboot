@@ -20,22 +20,3 @@ spec:
         image: saivamshi1432/springboot-app:${BUILD_NUMBER}
         ports:
         - containerPort: 8080
-        resources:
-          requests:
-            cpu: "250m"
-            memory: "256Mi"
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-        livenessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 15
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
