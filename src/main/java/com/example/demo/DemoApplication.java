@@ -17,5 +17,4 @@ public class DemoApplication { // Main class for the Spring Boot application
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args); // Runs the Spring Boot application
 	}
-
 }
