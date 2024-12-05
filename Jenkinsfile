@@ -1,10 +1,3 @@
-/*Assignment-3
- *    Team Members
- * Sai Vamshi Dasari-G01464718
- * Aryan Sudhagoni-G01454180
- * Lahari Ummadisetty-G01454186
- */
-
 pipeline {
     agent any
     environment {
@@ -19,27 +12,15 @@ pipeline {
         stage('Set Kubernetes Context') {
             steps {
                 script {
-                    // Check if the context exists, create it if necessary
-                    def contextExists = sh(
-                        script: "kubectl config get-contexts | grep -w ${KUBE_CONTEXT} || true",
-                        returnStdout: true
-                    ).trim()
-
-                    if (!contextExists) {
-                        echo "Context '${KUBE_CONTEXT}' not found. Creating it."
-                        sh '''
-                        kubectl config set-context ${KUBE_CONTEXT} \
-                            --cluster=cluster1 \
-                            --user=eks-user \
-                            --namespace=${KUBE_NAMESPACE}
-                        '''
-                    }
-
-                    // Set the context for the deployment
-                    sh "kubectl config use-context ${KUBE_CONTEXT}"
+                    // Set the context directly without checking or creating it
+                    sh """
+                    kubectl config use-context ${KUBE_CONTEXT}
+                    kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
+                    """
                 }
             }
         }
+
         stage('Clone Repository') {
             steps {
                 script {
@@ -87,28 +68,28 @@ pipeline {
                         sh '''
                         # Generate token for EKS and configure kubectl
                         export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name cluster1 | jq -r '.status.token')
-                        sudo kubectl config set-credentials arn:aws:iam::717279734829:role/cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
+                        kubectl config set-credentials arn:aws:iam::717279734829:role/cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
 
-                        sudo kubectl config use-context ${KUBE_CONTEXT}
+                        # Set the context to use the correct kubeconfig context
+                        kubectl config use-context ${KUBE_CONTEXT}
 
                         # Set the namespace
-                        sudo kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
+                        kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
 
                         # Replace placeholders in deployment.yaml with the current build number
                         sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
 
                         # Apply the Kubernetes manifests
-                        sudo kubectl apply -f deployment.yaml --validate=false
-                        sudo kubectl apply -f service.yaml
+                        kubectl apply -f deployment.yaml --validate=false
+                        kubectl apply -f service.yaml
 
                         # Rollout status to confirm the deployment
-                        sudo kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
+                        kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
                         '''
                     }
                 }
             }
         }
-
     }
 
     post {
@@ -127,6 +108,5 @@ pipeline {
         }
     }
 }
-
 
 
