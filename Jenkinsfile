@@ -64,21 +64,21 @@ pipeline {
                         sh '''
                         # Generate token for EKS and configure kubectl
                         export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name swe645-cluster | jq -r '.status.token')
-                        kubectl config set-credentials eks-user --token=$TOKEN
-                        kubectl config use-context ${KUBE_CONTEXT}
+                        sudo kubectl config set-credentials eks-user --token=$TOKEN
+                        sudo kubectl config use-context ${KUBE_CONTEXT}
 
                         # Set the namespace
-                        kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
+                        sudo kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
 
                         # Replace placeholders in deployment.yaml with the current build number
                         sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
 
                         # Apply the Kubernetes manifests
-                        kubectl apply -f deployment.yaml
-                        kubectl apply -f service.yaml
+                        sudo kubectl apply -f deployment.yaml
+                        sudo kubectl apply -f service.yaml
 
                         # Rollout status to confirm the deployment
-                        kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
+                        sudo kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
                         '''
                     }
                 }
