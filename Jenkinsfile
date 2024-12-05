@@ -9,7 +9,9 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = "saivamshi1432/springboot-app"
+        DOCKER_TAG = "${DOCKER_IMAGE}:${BUILD_NUMBER}"
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
+        KUBE_CONTEXT = "arn:aws:eks:us-east-1:717279734829:cluster/swe645-cluster"
         KUBE_NAMESPACE = "default"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
@@ -27,8 +29,10 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        # Stop any running application
+                        # Stop any running instance of the application (if exists)
                         pkill -f target/demo-0.0.1-SNAPSHOT.jar || true
+
+                        # Build the Spring Boot application
                         mvn clean package
                     '''
                 }
@@ -38,7 +42,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${BUILD_NUMBER}")
+                    docker.build(DOCKER_TAG)
                 }
             }
         }
@@ -47,7 +51,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry(DOCKER_REGISTRY, 'dockerhub-cred') {
-                        docker.image("${DOCKER_IMAGE}:${BUILD_NUMBER}").push()
+                        docker.image(DOCKER_TAG).push()
                     }
                 }
             }
@@ -56,22 +60,45 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    sh '''
-                        sudo kubectl --kubeconfig=${KUBECONFIG} config set-context --current --namespace=${KUBE_NAMESPACE}
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
+                        sh '''
+                        # Generate token for EKS and configure kubectl
+                        export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name swe645-cluster | jq -r '.status.token')
+                        kubectl config set-credentials eks-user --token=$TOKEN
+                        kubectl config use-context ${KUBE_CONTEXT}
+
+                        # Set the namespace
+                        kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
+
+                        # Replace placeholders in deployment.yaml with the current build number
                         sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
-                        sudo kubectl --kubeconfig=${KUBECONFIG} apply -f deployment.yaml
-                        sudo kubectl --kubeconfig=${KUBECONFIG} apply -f service.yaml
-                        sudo timeout 5m kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/springboot-deployment
-                    '''
+
+                        # Apply the Kubernetes manifests
+                        kubectl apply -f deployment.yaml
+                        kubectl apply -f service.yaml
+
+                        # Rollout status to confirm the deployment
+                        kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
+                        '''
+                    }
                 }
             }
         }
     }
 
     post {
+        success {
+            echo "Deployment successful!"
+        }
+
+        failure {
+            echo "Deployment failed. Check the logs for details."
+        }
+
         always {
+            // Archive the built JAR file and clean the workspace
             archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-            cleanWs() // Clean workspace after build
+            cleanWs()
         }
     }
 }
