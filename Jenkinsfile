@@ -74,7 +74,8 @@ pipeline {
                         sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
 
                         # Apply the Kubernetes manifests
-                        sudo kubectl apply -f deployment.yaml
+                        sudo kubectl apply -f deployment.yaml --validate=false
+
                         sudo kubectl apply -f service.yaml
 
                         # Rollout status to confirm the deployment
