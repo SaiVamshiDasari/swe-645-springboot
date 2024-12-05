@@ -2,7 +2,7 @@
  *    Team Members
  * Sai Vamshi Dasari-G01464718
  * Aryan Sudhagoni-G01454180
- * Lahari ummadisetty-G01454186
+ * Lahari Ummadisetty-G01454186
  */
 
 pipeline {
@@ -11,11 +11,11 @@ pipeline {
         DOCKER_IMAGE = "saivamshi1432/springboot-app"
         DOCKER_TAG = "${DOCKER_IMAGE}:${BUILD_NUMBER}"
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
-        KUBE_CONTEXT = "cluster1"
+       
         KUBE_NAMESPACE = "default"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
-      stages {
+    stages {
         stage('Set Kubernetes Context') {
             steps {
                 script {
@@ -30,7 +30,6 @@ pipeline {
                 }
             }
         }
-    stages {
         stage('Clone Repository') {
             steps {
                 script {
