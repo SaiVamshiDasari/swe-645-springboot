@@ -87,7 +87,8 @@ pipeline {
                         sh '''
                         # Generate token for EKS and configure kubectl
                         export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name cluster1 | jq -r '.status.token')
-                        sudo kubectl config set-credentials eks-user --token=$TOKEN
+                        sudo kubectl config set-credentials cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
+
                         sudo kubectl config use-context ${KUBE_CONTEXT}
 
                         # Set the namespace
@@ -98,7 +99,6 @@ pipeline {
 
                         # Apply the Kubernetes manifests
                         sudo kubectl apply -f deployment.yaml --validate=false
-
                         sudo kubectl apply -f service.yaml
 
                         # Rollout status to confirm the deployment
@@ -108,6 +108,7 @@ pipeline {
                 }
             }
         }
+
     }
 
     post {
