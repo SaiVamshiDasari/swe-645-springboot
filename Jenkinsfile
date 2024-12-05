@@ -68,7 +68,7 @@ pipeline {
                         sh '''
                         # Generate token for EKS and configure kubectl
                         export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name cluster1 | jq -r '.status.token')
-                        kubectl config set-credentials arn:aws:iam::717279734829:role/cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
+                        kubectl config set-credentials cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
 
                         # Set the context to use the correct kubeconfig context
                         kubectl config use-context ${KUBE_CONTEXT}
