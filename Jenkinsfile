@@ -11,7 +11,7 @@ pipeline {
         DOCKER_IMAGE = "saivamshi1432/springboot-app"
         DOCKER_TAG = "${DOCKER_IMAGE}:${BUILD_NUMBER}"
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
-        KUBE_CONTEXT = "cluster1"
+        KUBE_CONTEXT = "cluster1" // Ensure this matches the intended Kubernetes context
         KUBE_NAMESPACE = "default"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
@@ -19,14 +19,24 @@ pipeline {
         stage('Set Kubernetes Context') {
             steps {
                 script {
-                    // Retrieve the current context
-                    def currentContext = sh(
-                        script: "kubectl config current-context",
+                    // Check if the context exists, create it if necessary
+                    def contextExists = sh(
+                        script: "kubectl config get-contexts | grep -w ${KUBE_CONTEXT} || true",
                         returnStdout: true
                     ).trim()
-                    
+
+                    if (!contextExists) {
+                        echo "Context '${KUBE_CONTEXT}' not found. Creating it."
+                        sh '''
+                        kubectl config set-context ${KUBE_CONTEXT} \
+                            --cluster=swe645cluster2 \
+                            --user=eks-user \
+                            --namespace=${KUBE_NAMESPACE}
+                        '''
+                    }
+
                     // Set the context for the deployment
-                    sh "kubectl config use-context ${currentContext}"
+                    sh "kubectl config use-context ${KUBE_CONTEXT}"
                 }
             }
         }
@@ -116,4 +126,5 @@ pipeline {
         }
     }
 }
+
 
