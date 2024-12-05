@@ -86,7 +86,7 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
                         sh '''
                         # Generate token for EKS and configure kubectl
-                        export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name swe645cluster2 | jq -r '.status.token')
+                        export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name cluster1 | jq -r '.status.token')
                         sudo kubectl config set-credentials eks-user --token=$TOKEN
                         sudo kubectl config use-context ${KUBE_CONTEXT}
 
