@@ -13,7 +13,7 @@ pipeline {
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
         KUBE_CONTEXT = "arn:aws:eks:us-east-1:717279734829:cluster/swe645cluster2"
         KUBE_NAMESPACE = "default"
-        KUBECONFIG = "/root/.kube/config"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
