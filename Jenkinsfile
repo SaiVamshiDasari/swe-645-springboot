@@ -29,7 +29,7 @@ pipeline {
                         echo "Context '${KUBE_CONTEXT}' not found. Creating it."
                         sh '''
                         kubectl config set-context ${KUBE_CONTEXT} \
-                            --cluster=swe645cluster2 \
+                            --cluster=cluster1 \
                             --user=eks-user \
                             --namespace=${KUBE_NAMESPACE}
                         '''
