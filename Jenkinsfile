@@ -74,31 +74,20 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
-                        sh '''
-                        # Generate token for EKS and configure kubectl
-                        export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name swe645cluster2 | jq -r '.status.token')
-                        sudo kubectl config set-credentials eks-user --token=$TOKEN
-                        sudo kubectl config use-context ${KUBE_CONTEXT}
-
-                        # Set the namespace
-                        sudo kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
-
-                        # Replace placeholders in deployment.yaml with the current build number
-                        sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
-
-                        # Apply the Kubernetes manifests
-                        sudo kubectl apply -f deployment.yaml --validate=false
-
-                        sudo kubectl apply -f service.yaml
-
-                        # Rollout status to confirm the deployment
-                        sudo kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
-                        '''
-                    }
+                    sh '''
+                    # Use the correct kubeconfig file and switch context
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
+                    kubectl config use-context ${KUBE_CONTEXT}
+                    
+                    # Perform the deployment
+                    kubectl apply -f deployment.yaml --validate=false
+                    kubectl apply -f service.yaml
+                    kubectl rollout status deployment/springboot-deployment -n default
+                    '''
                 }
             }
         }
+
     }
 
     post {
