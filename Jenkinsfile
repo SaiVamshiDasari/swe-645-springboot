@@ -15,7 +15,21 @@ pipeline {
         KUBE_NAMESPACE = "default"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
-
+      stages {
+        stage('Set Kubernetes Context') {
+            steps {
+                script {
+                    // Retrieve the current context
+                    def currentContext = sh(
+                        script: "kubectl config current-context",
+                        returnStdout: true
+                    ).trim()
+                    
+                    // Set the context for the deployment
+                    sh "kubectl config use-context ${currentContext}"
+                }
+            }
+        }
     stages {
         stage('Clone Repository') {
             steps {
