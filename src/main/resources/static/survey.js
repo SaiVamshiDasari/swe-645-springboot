@@ -7,7 +7,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
     // Define your backend base URL
-    const BASE_URL = "http://acd202bc46cc9407cb4f97a7021422c3-71503224.us-east-1.elb.amazonaws.com/"; // Change this to your deployed backend URL if needed
+    const BASE_URL = "http://acd202bc46cc9407cb4f97a7021422c3-71503224.us-east-1.elb.amazonaws.com"; // Change this to your deployed backend URL if needed
 
     // Handle form submission
     const surveyForm = document.querySelector("form");
