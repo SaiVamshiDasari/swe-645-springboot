@@ -4,7 +4,7 @@ pipeline {
         DOCKER_IMAGE = "saivamshi1432/springboot-app"
         DOCKER_TAG = "${DOCKER_IMAGE}:${BUILD_NUMBER}"
         DOCKER_REGISTRY = "https://index.docker.io/v1/"
-        KUBE_CONTEXT = "cluster1" // Ensure this matches the intended Kubernetes context
+        KUBE_CONTEXT = "arn:aws:eks:us-east-1:717279734829:cluster/cluster1" // Ensure this matches the intended Kubernetes context
         KUBE_NAMESPACE = "default"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
