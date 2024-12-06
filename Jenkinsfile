@@ -9,7 +9,6 @@ pipeline {
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
     stages {
-        
         stage('Clone Repository') {
             steps {
                 script {
@@ -56,20 +55,22 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-cred']]) {
                         sh '''
                         # Generate token for EKS and configure kubectl
-                        export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name cluster1 | jq -r '.status.token')
-                        sudo kubectl config set-credentials arn:aws:iam::717279734829:role/cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
+                        export TOKEN=$(aws eks get-token --region us-east-1 --cluster-name ${KUBE_CONTEXT} | jq -r '.status.token')
+                        kubectl config set-credentials arn:aws:iam::717279734829:role/cs645-jenkins-role --token=$TOKEN  # Use your IAM role ARN
 
-                       
+                        # Set Kubernetes context and namespace
+                        kubectl config use-context ${KUBE_CONTEXT}
+                        kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
 
                         # Replace placeholders in deployment.yaml with the current build number
-                        sudo sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
+                        sed -i "s|\\\${BUILD_NUMBER}|${BUILD_NUMBER}|g" deployment.yaml
 
                         # Apply the Kubernetes manifests
-                        sudo kubectl apply -f deployment.yaml --validate=false
-                        sudo kubectl apply -f service.yaml
+                        kubectl apply -f deployment.yaml --namespace=${KUBE_NAMESPACE} --validate=false
+                        kubectl apply -f service.yaml --namespace=${KUBE_NAMESPACE}
 
                         # Rollout status to confirm the deployment
-                        sudo kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
+                        kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
                         '''
                     }
                 }
@@ -93,5 +94,3 @@ pipeline {
         }
     }
 }
-
-
