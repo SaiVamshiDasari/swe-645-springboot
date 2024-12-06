@@ -9,18 +9,7 @@ pipeline {
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
     stages {
-        stage('Set Kubernetes Context') {
-            steps {
-                script {
-                    // Set the context directly without checking or creating it
-                    sh """
-                    kubectl config use-context ${KUBE_CONTEXT}
-                    kubectl config set-context --current --namespace=${KUBE_NAMESPACE}
-                    """
-                }
-            }
-        }
-
+        
         stage('Clone Repository') {
             steps {
                 script {
