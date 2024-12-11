@@ -1,65 +1,49 @@
-
-/*Assignment-3
- *  <----Team Members---->
- * Sai Vamshi Dasari-G01464718
- * Aryan Sudhagoni-G01454180
- * Lahari ummadisetty-G01454186
- */
 package com.example.demo;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/survey")
+@CrossOrigin(origins = "*")
 public class SurveyController {
 
     @Autowired
     private SurveyRepository surveyRepository;
 
-    // Create a new survey (POST)
+    // Create or update survey (POST)
     @PostMapping
-    public ResponseEntity<Survey> createSurvey(@RequestBody Survey survey) {
-        Survey savedSurvey = surveyRepository.save(survey);
-        return ResponseEntity.ok(savedSurvey);
+    public Survey createOrUpdateSurvey(@RequestBody Survey survey) {
+        return surveyRepository.save(survey);
     }
 
-    // GET endpoint to retrieve all surveys
-    @GetMapping("/all")
-    public ResponseEntity<List<Survey>> getAllSurveys() {
-        List<Survey> surveys = surveyRepository.findAll();
-        return ResponseEntity.ok(surveys);
-    }
-
-    // Get a specific survey by ID (GET)
-    @GetMapping("/{id}")
-    public ResponseEntity<Survey> getSurveyById(@PathVariable Long id) {
-        Survey survey = surveyRepository.findById(id).orElse(null);
-        if (survey == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(survey);
-    }
-
-    // Update a survey (PUT)
+    // Update survey (PUT)
     @PutMapping("/{id}")
-    public ResponseEntity<Survey> updateSurvey(@PathVariable Long id, @RequestBody Survey updatedSurvey) {
+    public Survey updateSurvey(@PathVariable Long id, @RequestBody Survey survey) {
+        // Ensure the survey ID exists before updating
         if (!surveyRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+            throw new RuntimeException("Survey with ID " + id + " not found.");
         }
-        updatedSurvey.setId(id);
-        Survey savedSurvey = surveyRepository.save(updatedSurvey);
-        return ResponseEntity.ok(savedSurvey);
+        survey.setId(id); // Set the ID to ensure the correct record is updated
+        return surveyRepository.save(survey);
     }
 
-    // Delete a survey (DELETE)
+    // Get all surveys
+    @GetMapping("/all")
+    public List<Survey> getAllSurveys() {
+        return surveyRepository.findAll();
+    }
+
+    // Get a survey by ID
+    @GetMapping("/{id}")
+    public Survey getSurveyById(@PathVariable Long id) {
+        return surveyRepository.findById(id).orElse(null);
+    }
+
+    // Delete a survey
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSurvey(@PathVariable Long id) {
-        if (!surveyRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
+    public void deleteSurvey(@PathVariable Long id) {
         surveyRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }
