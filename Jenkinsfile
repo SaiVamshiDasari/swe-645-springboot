@@ -72,7 +72,7 @@ pipeline {
 
                         # Apply the Kubernetes manifests
                         kubectl apply -f deployment.yaml --namespace=${KUBE_NAMESPACE} --validate=false
-                        kubectl apply -f service.yaml --namespace=${KUBE_NAMESPACE}
+                        kubectl apply -f service.yaml --namespace=${KUBE_NAMESPACE} --validate=false
 
                         # Rollout status to confirm the deployment
                         kubectl rollout status deployment/springboot-deployment -n ${KUBE_NAMESPACE}
